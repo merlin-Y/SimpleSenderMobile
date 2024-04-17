@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 android {
@@ -63,6 +64,7 @@ dependencies {
     implementation("androidx.room:room-ktx:$2.6.1")
     implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
     implementation("com.github.z244370114:DeviceLibray:1.0.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
 
     testImplementation("junit:junit:4.13.2")

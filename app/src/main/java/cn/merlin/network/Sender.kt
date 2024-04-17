@@ -1,47 +1,34 @@
 package cn.merlin.network
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import cn.merlin.bean.Device
-import cn.merlin.bean.model.DeviceModel
-import cn.merlin.tools.detectedDeviceIdentifierList
 import kotlinx.coroutines.*
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.net.InetSocketAddress
-import java.net.Socket
+import java.net.*
 
 class Sender {
+    private val sendRequestPort = 19999
     private var currentDevice = Device()
 
-    fun detectDevice(detectedDeviceList: SnapshotStateList<DeviceModel>){
+    fun startScanning(){
         CoroutineScope(Dispatchers.IO).launch {
-            while (true){
+            while(true){
                 currentDevice = CurrentDeviceInformation.getInformation()
-                val ipAddressIndex =
-                    currentDevice.deviceIpAddress!!.substring(0, currentDevice.deviceIpAddress!!.lastIndexOf("."))
-                for (i in 1..255) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val ipAddress = "$ipAddressIndex.$i"
-                        if (ipAddress == currentDevice.deviceIpAddress) cancel()
-                        try {
-                            val socket = Socket()
-                            socket.connect(InetSocketAddress(ipAddress, 19999), 1000)
-                            val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
-                            val objectInputStream = ObjectInputStream(socket.getInputStream())
-                            objectOutputStream.writeInt(1)
-                            objectOutputStream.flush()
-                            val device = objectInputStream.readObject() as Device
-                            if(device.deviceIpAddress != currentDevice.deviceIpAddress){
-                                if(!detectedDeviceIdentifierList.contains(device.deviceIdentifier)){
-                                    detectedDeviceList.add(DeviceModel(device))
-                                }
-                            }
-                            socket.close()
-                        } catch (e: Exception) {
-//                            print(e)
-                        }
-                    }
+                val commandCode = "SimpleSender"
+                val broadcastAddress = InetAddress.getByName(currentDevice.deviceIpAddress.substring(0,currentDevice.deviceIpAddress.lastIndexOf('.') + 1) + "255")
+                val sendMessage = "$commandCode;${currentDevice.deviceIpAddress}"
+                val sendMessageArray = ByteArray(sendMessage.length + 2)
+                sendMessageArray[0] = (sendMessage.length shr 8).toByte()
+                sendMessageArray[1] = sendMessage.length.toByte()
+                System.arraycopy(sendMessage.toByteArray(Charsets.UTF_8),0,sendMessageArray,2,sendMessage.length)
+                val socket = DatagramSocket()
+                try{
+                    socket.broadcast = true
+                    val packet =
+                        DatagramPacket(sendMessageArray, sendMessage.length + 2, broadcastAddress, sendRequestPort)
+                    socket.send(packet)
+                }catch (_: Exception){
+                    socket.close()
                 }
+                socket.close()
                 delay(2000)
             }
         }

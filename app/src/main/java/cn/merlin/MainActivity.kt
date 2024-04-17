@@ -63,9 +63,9 @@ class MainActivity : ComponentActivity() {
                         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars =
                             !isInDarkMode
                         senderController.getAllDevice(localDeviceList)
+                        receiver.startServer(detectedDeviceList)
+                        sender.startScanning()
                     }
-                    sender.detectDevice(detectedDeviceList)
-                    receiver.startServer()
                     App(localDeviceList,detectedDeviceList)
                 }
             }
