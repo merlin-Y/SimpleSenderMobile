@@ -9,11 +9,19 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.dataStore
 import cn.nerlin.simplesendermobile.datastore.DSManager
 import cn.nerlin.simplesendermobile.tools.Settings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 const val TWEEN_DURATION = 500
 val isInDarkMode = mutableStateOf(true)
@@ -87,8 +95,8 @@ fun SImpleSenderMobileTheme(
     dsManager: DSManager,
     content: @Composable () -> Unit
 ) {
-    val isCustomTheme = dsManager.isCustomTheme.collectAsState(initial = false)
-    val isInDarkTheme = dsManager.isInDarkTheme.collectAsState(initial = false)
+    val isCustomTheme = remember { mutableStateOf(false) }
+    val isInDarkTheme = remember { mutableStateOf(false) }
 
     val colorScheme = when {
         isCustomTheme.value -> if (isInDarkTheme.value) DarkColors else LightColors

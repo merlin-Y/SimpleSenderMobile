@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -17,8 +16,6 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,8 +24,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -45,6 +40,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val dataStore = DSManager(application)
+
         setContent {
             val savedDeviceList: SnapshotStateList<DeviceViewer> = remember { mutableStateListOf() }
             val detectedDeviceList: SnapshotStateList<DeviceViewer> = remember { mutableStateListOf() }
@@ -57,7 +53,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun App(savedDeviceList: SnapshotStateList<DeviceViewer>, detectedDeviceList: SnapshotStateList<DeviceViewer>,dataStore: DSManager) {
+fun App(savedDeviceList: SnapshotStateList<DeviceViewer>, detectedDeviceList: SnapshotStateList<DeviceViewer>, dataStore: DSManager) {
     /*初始化数据*/
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()

@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavController
 import cn.nerlin.simplesendermobile.bean.beanviewers.DeviceViewer
+import cn.nerlin.simplesendermobile.datastore.DSManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -35,7 +37,7 @@ fun Detect(
     drawerState: DrawerState,
     scope: CoroutineScope,
     navController: NavController,
-    savedDeviceList: SnapshotStateList<DeviceViewer>
+    savedDeviceList: SnapshotStateList<DeviceViewer>,
 ){
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -73,37 +75,6 @@ fun Detect(
                     Text(text = it.deviceName.value)
                 }
             }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun Test(){
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.primary
-    ){
-        Column(
-            modifier = Modifier.padding(top = 35.dp, start = 16.dp, end = 8.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-                Surface(
-                    modifier = Modifier.size(30.dp).weight(1f),
-                    shape = MaterialTheme.shapes.extraSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                ) {
-                    Icon(
-                        Icons.Filled.Menu, "",modifier = Modifier
-                            .fillMaxSize()
-                            .padding(0.dp))
-                }
-                Text(text = "发现设备", modifier = Modifier.padding().weight(10f), textAlign = TextAlign.End)
-            }
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

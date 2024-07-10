@@ -39,9 +39,6 @@ fun LeftMenuBar(
     savedDeviceList: SnapshotStateList<DeviceViewer>,
     dsManager: DSManager
 ) {
-    val isCustomTheme = dsManager.isCustomTheme.collectAsState(initial = false)
-    val isInDarkTheme = dsManager.isInDarkTheme.collectAsState(initial = false)
-
     Column {
         Row {
             Spacer(modifier = Modifier.width(26.dp))
@@ -68,7 +65,7 @@ fun LeftMenuBar(
                 DeviceCard(it, navController)
             }
         }
-        Text(text = if(isInDarkTheme.value) "In Dark Theme" else "Not In Dark Theme")
+//        Text(text = if(isInDarkTheme.value) "In Dark Theme" else "Not In Dark Theme")
     }
 
 }
