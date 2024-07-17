@@ -1,14 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "cn.nerlin.simplesendermobile"
+    namespace = "cn.merlin.simplesendermobile"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "cn.nerlin.simplesendermobile"
+        applicationId = "cn.merlin.simplesendermobile"
         minSdk = 31
         targetSdk = 34
         versionCode = 1
@@ -30,11 +31,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -66,18 +67,27 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation (libs.github.xxpermissions)
+
+    //协程
     implementation (libs.org.jetbrains.kotlinx.kotlinx.coroutines.core2)
     implementation (libs.jetbrains.kotlinx.coroutines.android)
 
+    //导航栏
     implementation(libs.androidx.navigation.compose)
 
+    //json序列化
     implementation(libs.kotlinx.serialization.json)
 
-
+    //dataStore
     implementation (libs.androidx.datastore.preferences)
 
+    //Room
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
+
+    //Coil异步加载图片
+    implementation (libs.io.coil.kt.coil.compose3)
 }

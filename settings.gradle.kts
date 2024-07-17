@@ -16,8 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven ("https://jitpack.io" )
     }
 }
 
-rootProject.name = "SImpleSenderMobile"
+rootProject.name = "SimpleSenderMobile"
 include(":app")
