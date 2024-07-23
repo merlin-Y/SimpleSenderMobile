@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "cn.merlin.simplesendermobile"
-        minSdk = 31
+        minSdk = 33
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -67,7 +67,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation (libs.github.xxpermissions)
+    implementation (libs.accompanist.permissions)
 
     //协程
     implementation (libs.org.jetbrains.kotlinx.kotlinx.coroutines.core2)
