@@ -37,9 +37,7 @@ fun LeftMenuBar(
     dsManager: DSManager
 ) {
     val configuration = LocalConfiguration.current
-//    val screenWidth = configuration.screenWidthDp.dp
-
-//    getDeviceName(LocalContext.current)
+    val screenWidth = configuration.screenWidthDp.dp
 
     Column(
         modifier = Modifier
@@ -49,18 +47,25 @@ fun LeftMenuBar(
     ) {
         SubcomposeAsyncImage(
             model =
-            R.drawable.laptop,
-//            (
-//                if(screenWidth <= 600.dp)   R.drawable.phone
-//                else    R.drawable.laptop
-//            ),
+            (
+                if(screenWidth <= 600.dp)
+                {
+                    currentDevice.value.deviceType.value = "phone"
+                    R.drawable.phone
+                }
+                else
+                {
+                    currentDevice.value.deviceType.value = "laptop"
+                    R.drawable.laptop
+                }
+            ),
             loading = {
                 CircularProgressIndicator()
             },
             contentDescription = "",
             modifier = Modifier.size(96.dp)
         )
-        Text(text = currentDevice.value.deviceName.value + " " + currentDevice.value.deviceIpAddress.value)
+        Text(text = currentDevice.value.deviceName.value)
         LazyColumn {
             items(savedDeviceList) {
                 DeviceCard(it, navController)

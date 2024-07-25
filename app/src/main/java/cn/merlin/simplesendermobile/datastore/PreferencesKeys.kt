@@ -6,5 +6,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 
 object PreferencesKeys {
     val changeTheme = intPreferencesKey("changeTheme")
-    val useDarkTheme = booleanPreferencesKey("useDarkTheme")
+    val identifier = stringPreferencesKey("identifier")
+    val nickName = stringPreferencesKey("nickName")
 }

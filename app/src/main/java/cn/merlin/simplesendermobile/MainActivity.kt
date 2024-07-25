@@ -1,6 +1,7 @@
 package cn.merlin.simplesendermobile
 
-import android.content.Context
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -8,22 +9,25 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -34,6 +38,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,28 +46,22 @@ import androidx.navigation.compose.rememberNavController
 import cn.merlin.simplesendermobile.bean.model.DeviceViewModel
 import cn.merlin.simplesendermobile.datastore.DSManager
 import cn.merlin.simplesendermobile.datastore.PreferencesKeys
-import cn.merlin.simplesendermobile.tools.getDeviceName
-import cn.merlin.simplesendermobile.ui.LeftMenuBar
-import cn.merlin.simplesendermobile.ui.pages.Settings
-import cn.merlin.simplesendermobile.ui.pages.Detect
-import cn.merlin.simplesendermobile.ui.pages.Message
-import cn.merlin.simplesendermobile.ui.theme.SImpleSenderMobileTheme
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import android.Manifest
-import android.os.Build
-import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.ui.platform.LocalContext
 import cn.merlin.simplesendermobile.network.NetworkController
 import cn.merlin.simplesendermobile.tools.currentDevice
+import cn.merlin.simplesendermobile.tools.getDeviceName
+import cn.merlin.simplesendermobile.tools.updateSettings
+import cn.merlin.simplesendermobile.ui.LeftMenuBar
+import cn.merlin.simplesendermobile.ui.pages.Detect
+import cn.merlin.simplesendermobile.ui.pages.Message
+import cn.merlin.simplesendermobile.ui.pages.Settings
+import cn.merlin.simplesendermobile.ui.theme.SImpleSenderMobileTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
@@ -74,9 +73,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val changeTheme = remember { mutableStateOf(0) }
             val isLoading = remember { mutableStateOf(true) }
+            val networkJobs: MutableList<Job> = mutableListOf()
+
             val isInDarkMode = isSystemInDarkTheme()
-            val networkController = NetworkController(application)
-            getDeviceName(LocalContext.current)
+            val networkController = NetworkController(application,networkJobs)
+            getDeviceName(application)
 
             val useDarkTheme = remember(isInDarkMode) {
                 derivedStateOf {
@@ -115,13 +116,18 @@ class MainActivity : ComponentActivity() {
             }
             val multiplePermissionsState =
                 rememberMultiplePermissionsState(permissions = permissions)
-            LaunchedEffect(isLoading) {
-//                multiplePermissionsState.launchMultiplePermissionRequest()
-                networkController.startNetworkControl(detectedDeviceList)
+
+            LaunchedEffect(Unit) {
+                multiplePermissionsState.launchMultiplePermissionRequest()
                 try {
                     changeTheme.value =
                         dsManager.getIntFlow(PreferencesKeys.changeTheme, 0).first()
+                    currentDevice.value.deviceIdentifier.value = dsManager.getStringFlow(PreferencesKeys.identifier,
+                        updateSettings(dsManager,PreferencesKeys.identifier.name,UUID.randomUUID().toString())
+                    ).first()
+                    currentDevice.value.deviceNickName.value = dsManager.getStringFlow(PreferencesKeys.nickName,"").first()
                     isLoading.value = false
+                    networkController.startNetworkControl(detectedDeviceList)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -147,7 +153,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -188,10 +193,6 @@ fun App(
         scope.launch { drawerState.close() }
     }
 
-    SideEffect {
-
-    }
-
     /*显示左边菜单栏*/
     ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
         ModalDrawerSheet(
@@ -209,7 +210,7 @@ fun App(
             startDestination = "detect"
         ) {
             composable(route = "detect") {
-                Detect(drawerState, scope, navController, detectedDeviceList)
+                Detect(drawerState, scope, navController, savedDeviceList,detectedDeviceList)
             }
             composable(route = "message") {
                 Message()
@@ -222,3 +223,4 @@ fun App(
     }
 
 }
+

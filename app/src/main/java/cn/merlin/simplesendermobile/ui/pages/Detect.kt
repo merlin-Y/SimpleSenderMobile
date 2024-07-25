@@ -1,5 +1,6 @@
 package cn.merlin.simplesendermobile.ui.pages
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +36,7 @@ fun Detect(
     scope: CoroutineScope,
     navController: NavController,
     savedDeviceList: SnapshotStateList<DeviceViewModel>,
+    detectedDeviceList: SnapshotStateList<DeviceViewModel>,
 ){
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -47,7 +50,9 @@ fun Detect(
 //                horizontalArrangement = Arrangement.End
             ) {
                 Surface(
-                    modifier = Modifier.size(30.dp).weight(1f),
+                    modifier = Modifier
+                        .size(30.dp)
+                        .weight(1f),
                     shape = MaterialTheme.shapes.extraSmall,
                     color = MaterialTheme.colorScheme.primary,
                     onClick = {
@@ -59,18 +64,44 @@ fun Detect(
                 ) {
                     Icon(
                         Icons.Filled.Menu, "",modifier = Modifier
-                        .fillMaxSize()
-                        .padding(0.dp))
+                            .fillMaxSize()
+                            .padding(0.dp))
                 }
                 Text("发现设备", modifier = Modifier.weight(10f), textAlign = TextAlign.End)
             }
             Spacer(modifier = Modifier.height(20.dp))
             LazyColumn(
+                modifier = Modifier.padding(top = 20.dp, start = 20.dp)
             ) {
-                items(savedDeviceList){
-                    Text(text = it.deviceName.value)
+                for (device in detectedDeviceList) {
+                    item {
+                        DeviceCard(device,savedDeviceList,detectedDeviceList)
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun DeviceCard(device: DeviceViewModel, savedDeviceList: SnapshotStateList<DeviceViewModel>,detectedDeviceList: SnapshotStateList<DeviceViewModel>) {
+    Button(
+        shape = MaterialTheme.shapes.extraLarge,
+        modifier = Modifier
+            .size(180.dp)
+            .padding(top = 20.dp, start = 20.dp),
+        onClick = {
+            device.inListType.value = false
+            savedDeviceList.add(device)
+        }
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(device.deviceName.value, color = MaterialTheme.colorScheme.onSecondaryContainer, maxLines = 1)
+            Text(device.deviceIpAddress.value, color = MaterialTheme.colorScheme.onSecondaryContainer, maxLines = 1)
+        }
+
     }
 }

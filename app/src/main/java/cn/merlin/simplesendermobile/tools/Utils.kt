@@ -9,14 +9,18 @@ import androidx.compose.runtime.mutableStateOf
 import cn.merlin.simplesendermobile.bean.Device
 import cn.merlin.simplesendermobile.bean.model.DeviceViewModel
 import cn.merlin.simplesendermobile.datastore.DSManager
+import cn.merlin.simplesendermobile.datastore.PreferencesKeys
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.InetAddress
+import java.util.UUID
 
 val currentDevice = mutableStateOf(DeviceViewModel(Device(deviceName = "我的设备")))
-val startDetect = mutableStateOf(true)
 val isWifiConnected = mutableStateOf(false)
-val detectedDeviceIdentifierList: MutableList<String> = mutableListOf()
+val detectedDeviceIdentifierSet: MutableSet<String> = mutableSetOf()
 
 fun getUserProfile(): String {
     return ""
@@ -35,26 +39,29 @@ suspend fun isWifiConnected(context: Context): Boolean = withContext(Dispatchers
     }
 }
 
-suspend fun getWifiAddress(context: Context): String? = withContext(Dispatchers.IO) {
+suspend fun getWifiAddress(context: Context): Boolean = withContext(Dispatchers.IO) {
     try {
         val wifiManager =
             context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val ipAddress = wifiManager.connectionInfo.ipAddress
-        return@withContext InetAddress.getByAddress(
+        currentDevice.value.deviceIpAddress.value = InetAddress.getByAddress(
             byteArrayOf(
                 (ipAddress and 0xff).toByte(),
                 (ipAddress shr 8 and 0xff).toByte(),
                 (ipAddress shr 16 and 0xff).toByte(),
                 (ipAddress shr 24 and 0xff).toByte()
             )
-        ).hostAddress
+        ).hostAddress?.toString() ?: ""
+        return@withContext true
     } catch (_: Exception) {
-        return@withContext ""
+        return@withContext false
     }
+
 }
 
-suspend fun <U> updateSettings(dsManager: DSManager, key: String, value: U) {
-    dsManager.saveData(key, value)
+suspend fun <U> updateSettings(dsManager: DSManager, key: String, value: U): U {
+    CoroutineScope(Dispatchers.IO).launch{ dsManager.saveData(key, value) }
+    return value
 }
 
 fun getDeviceName(context: Context){
