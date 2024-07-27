@@ -9,18 +9,19 @@ import androidx.compose.runtime.mutableStateOf
 import cn.merlin.simplesendermobile.bean.Device
 import cn.merlin.simplesendermobile.bean.model.DeviceViewModel
 import cn.merlin.simplesendermobile.datastore.DSManager
-import cn.merlin.simplesendermobile.datastore.PreferencesKeys
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.InetAddress
-import java.util.UUID
 
 val currentDevice = mutableStateOf(DeviceViewModel(Device(deviceName = "我的设备")))
 val isWifiConnected = mutableStateOf(false)
+val savedDeviceList: MutableList<DeviceViewModel> = mutableListOf()
+val savedDeviceIdentifierSet: MutableSet<String> = mutableSetOf()
+val detectedDeviceList: MutableList<DeviceViewModel> = mutableListOf()
 val detectedDeviceIdentifierSet: MutableSet<String> = mutableSetOf()
+val isFrashing = mutableStateOf(true)
 
 fun getUserProfile(): String {
     return ""

@@ -74,6 +74,9 @@ dependencies {
     implementation (libs.org.jetbrains.kotlinx.kotlinx.coroutines.core2)
     implementation (libs.jetbrains.kotlinx.coroutines.android)
 
+    //Viewmodel
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     //导航栏
     implementation(libs.androidx.navigation.compose)
 

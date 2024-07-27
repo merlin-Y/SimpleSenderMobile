@@ -3,7 +3,7 @@ accompanistPermissions = "0.34.0"
 agp = "8.5.0"
 datastorePreferencesVersion = "1.0.0"
 ioCoilKtCoilCompose = "2.7.0"
-jetbrainsKotlinxCoroutinesCoreVersion = "1.8.0"
+jetbrainsKotlinxCoroutinesCoreVersion = "1.8.1"
 kotlin = "2.0.0"
 coreKtx = "1.13.0"
 junit = "4.13.2"
@@ -14,6 +14,7 @@ kotlinxSerializationJson = "1.7.1"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.9.0"
 composeBom = "2024.04.01"
+lifecycleViewmodelCompose = "2.7.0"
 navigationCompose = "2.7.7"
 roomKtx = "2.6.1"
 roomPaging = "2.6.1"
@@ -24,6 +25,7 @@ roomCompiler = "2.6.1"
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }

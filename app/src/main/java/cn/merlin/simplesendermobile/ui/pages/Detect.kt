@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
@@ -37,6 +36,7 @@ fun Detect(
     navController: NavController,
     savedDeviceList: SnapshotStateList<DeviceViewModel>,
     detectedDeviceList: SnapshotStateList<DeviceViewModel>,
+    savedDeviceIdentifier: MutableSet<String>
 ){
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -75,7 +75,7 @@ fun Detect(
             ) {
                 for (device in detectedDeviceList) {
                     item {
-                        DeviceCard(device,savedDeviceList,detectedDeviceList)
+                        DeviceCard(device,savedDeviceList, savedDeviceIdentifier)
                     }
                 }
             }
@@ -84,15 +84,17 @@ fun Detect(
 }
 
 @Composable
-fun DeviceCard(device: DeviceViewModel, savedDeviceList: SnapshotStateList<DeviceViewModel>,detectedDeviceList: SnapshotStateList<DeviceViewModel>) {
+fun DeviceCard(device: DeviceViewModel, savedDeviceList: SnapshotStateList<DeviceViewModel>,savedDeviceIdentifier: MutableSet<String>) {
     Button(
         shape = MaterialTheme.shapes.extraLarge,
         modifier = Modifier
             .size(180.dp)
             .padding(top = 20.dp, start = 20.dp),
         onClick = {
-            device.inListType.value = false
-            savedDeviceList.add(device)
+            if(!savedDeviceIdentifier.contains(device.deviceIdentifier.value)){
+                device.inListType.value = false
+                savedDeviceList.add(device)
+            }
         }
     ) {
         Column(

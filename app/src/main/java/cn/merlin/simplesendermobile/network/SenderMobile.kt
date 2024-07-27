@@ -3,6 +3,7 @@ package cn.merlin.simplesendermobile.network
 import cn.merlin.simplesendermobile.bean.Device
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.DatagramPacket
@@ -12,8 +13,8 @@ import java.net.InetAddress
 class SenderMobile() {
     private val sendRequestPort = 19999
 
-    suspend fun sendCodeRequest(currentDevice: Device) {
-        CoroutineScope(Dispatchers.IO).launch {
+    suspend fun sendCodeRequest(currentDevice: Device): Job {
+        return CoroutineScope(Dispatchers.IO).launch {
             while (true) {
                 val commandCode = "detectCode"
                 val broadcastAddress = InetAddress.getByName(

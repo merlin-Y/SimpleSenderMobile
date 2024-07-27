@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +39,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -46,24 +46,25 @@ import androidx.navigation.compose.rememberNavController
 import cn.merlin.simplesendermobile.bean.model.DeviceViewModel
 import cn.merlin.simplesendermobile.datastore.DSManager
 import cn.merlin.simplesendermobile.datastore.PreferencesKeys
-import cn.merlin.simplesendermobile.network.NetworkController
 import cn.merlin.simplesendermobile.tools.currentDevice
 import cn.merlin.simplesendermobile.tools.getDeviceName
-import cn.merlin.simplesendermobile.tools.updateSettings
+import cn.merlin.simplesendermobile.tools.savedDeviceIdentifierSet
 import cn.merlin.simplesendermobile.ui.LeftMenuBar
 import cn.merlin.simplesendermobile.ui.pages.Detect
 import cn.merlin.simplesendermobile.ui.pages.Message
 import cn.merlin.simplesendermobile.ui.pages.Settings
 import cn.merlin.simplesendermobile.ui.theme.SImpleSenderMobileTheme
+import cn.merlin.simplesendermobile.ui.viewmodels.NetworkViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
+    private val networkViewModel: NetworkViewModel by viewModels()
+
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,10 +74,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val changeTheme = remember { mutableStateOf(0) }
             val isLoading = remember { mutableStateOf(true) }
-            val networkJobs: MutableList<Job> = mutableListOf()
 
             val isInDarkMode = isSystemInDarkTheme()
-            val networkController = NetworkController(application,networkJobs)
             getDeviceName(application)
 
             val useDarkTheme = remember(isInDarkMode) {
@@ -122,12 +121,15 @@ class MainActivity : ComponentActivity() {
                 try {
                     changeTheme.value =
                         dsManager.getIntFlow(PreferencesKeys.changeTheme, 0).first()
-                    currentDevice.value.deviceIdentifier.value = dsManager.getStringFlow(PreferencesKeys.identifier,
-                        updateSettings(dsManager,PreferencesKeys.identifier.name,UUID.randomUUID().toString())
+                    currentDevice.value.deviceIdentifier.value = dsManager.getStringFlow(
+                        PreferencesKeys.identifier,
+                        UUID.randomUUID().toString()
                     ).first()
-                    currentDevice.value.deviceNickName.value = dsManager.getStringFlow(PreferencesKeys.nickName,"").first()
+                    currentDevice.value.deviceNickName.value =
+                        dsManager.getStringFlow(PreferencesKeys.nickName, "").first()
                     isLoading.value = false
-                    networkController.startNetworkControl(detectedDeviceList)
+                    networkViewModel.startNetwork()
+                    networkViewModel.updateList(savedDeviceList,detectedDeviceList)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -210,7 +212,8 @@ fun App(
             startDestination = "detect"
         ) {
             composable(route = "detect") {
-                Detect(drawerState, scope, navController, savedDeviceList,detectedDeviceList)
+                Detect(drawerState, scope, navController, savedDeviceList, detectedDeviceList,
+                    savedDeviceIdentifierSet)
             }
             composable(route = "message") {
                 Message()

@@ -81,8 +81,8 @@ fun DeviceCard(
     deviceViewer: DeviceViewModel,
     navController: NavController,
 ) {
-    val text =
-        if (deviceViewer.deviceNickName.value != "") deviceViewer.deviceNickName.value else deviceViewer.deviceName.value
+    val text =deviceViewer.deviceName.value
+//        if (deviceViewer.deviceNickName.value != "") deviceViewer.deviceNickName.value else deviceViewer.deviceName.value
 
     Surface(
         modifier = Modifier

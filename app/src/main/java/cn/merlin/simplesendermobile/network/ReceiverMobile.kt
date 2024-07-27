@@ -1,9 +1,10 @@
 package cn.merlin.simplesendermobile.network
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import android.util.Log
 import cn.merlin.simplesendermobile.bean.Device
 import cn.merlin.simplesendermobile.bean.model.DeviceViewModel
 import cn.merlin.simplesendermobile.tools.detectedDeviceIdentifierSet
+import cn.merlin.simplesendermobile.tools.detectedDeviceList
 import cn.merlin.simplesendermobile.tools.getUserProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,14 +23,15 @@ class ReceiverMobile {
     private val receiveMessageCodePort = 20001
     private val receivedPort: MutableSet<Int> = mutableSetOf()
 
-    fun startDetectCodeReceiver(currentDevice: Device) {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun startDetectCodeReceiver(currentDevice: Device): Job {
+        return CoroutineScope(Dispatchers.IO).launch {
             val receiveSocket = DatagramSocket(receiveCommandCodePort)
             val receiveBuffer = ByteArray(64)
             val receivePacket = DatagramPacket(receiveBuffer, receiveBuffer.size)
             try {
                 while (true) {
                     receiveSocket.receive(receivePacket)
+                    Log.e("receivedCode","receivedCode")
                     val length =
                         (receivePacket.data[0].toInt() shl 8) or (receivePacket.data[1].toInt() and 0xFF)
                     val buffer = ByteArray(length)
@@ -71,14 +73,15 @@ class ReceiverMobile {
         }
     }
 
-    fun startDeviceCodeReceiver(detectedDeviceList: SnapshotStateList<DeviceViewModel>) {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun startDeviceCodeReceiver(): Job {
+        return CoroutineScope(Dispatchers.IO).launch {
             val receiverSocket = DatagramSocket(receiveDeviceCodePort)
             val receiverBuffer = ByteArray(512)
             val receiverPacket = DatagramPacket(receiverBuffer, receiverBuffer.size)
             try {
                 while (true) {
                     receiverSocket.receive(receiverPacket)
+                    Log.e("receivedDevice","receivedDevice")
                     val length =
                         (receiverPacket.data[0].toInt() shl 8) or (receiverPacket.data[1].toInt() and 0xFF)
                     val buffer = ByteArray(length)
@@ -102,8 +105,8 @@ class ReceiverMobile {
         }
     }
 
-    fun startMessageCodeReceiver() {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun startMessageCodeReceiver(): Job {
+        return CoroutineScope(Dispatchers.IO).launch {
             val receiverSocket = DatagramSocket(receiveMessageCodePort)
             val receiverBuffer = ByteArray(512)
             val receiverPacket = DatagramPacket(receiverBuffer, receiverBuffer.size)
